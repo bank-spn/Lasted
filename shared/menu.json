@@ -1,0 +1,39 @@
+{
+  "en": {
+    "erp": "ERP",
+    "pos": "POS",
+    "cashier": "Cashier",
+    "dashboard": "Dashboard",
+    "inventory": "Inventory",
+    "hrm": "Human Resource",
+    "accounting": "Accounting",
+    "auditLog": "Audit Log",
+    "cms": "CMS",
+    "systemSettings": "System Settings",
+    "logout": "Logout",
+    "profile": "Profile",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark"
+  },
+  "th": {
+    "erp": "ERP",
+    "pos": "ขายหน้าร้าน",
+    "cashier": "เปิด-ปิดกะ",
+    "dashboard": "แดชบอร์ด",
+    "inventory": "คลังสินค้า",
+    "hrm": "ทรัพยากรบุคคล",
+    "accounting": "บัญชี",
+    "auditLog": "บันทึกการทำงาน",
+    "cms": "จัดการเมนู",
+    "systemSettings": "ตั้งค่าระบบ",
+    "logout": "ออกจากระบบ",
+    "profile": "โปรไฟล์",
+    "language": "ภาษา",
+    "theme": "ธีม",
+    "light": "สว่าง",
+    "dark": "มืด"
+  }
+}
+
