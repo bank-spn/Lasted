@@ -21,16 +21,29 @@ import {
 } from "@/components/ui/sidebar";
 import { APP_LOGO, APP_TITLE, getLoginUrl } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft, Users } from "lucide-react";
+import { LayoutDashboard, LogOut, PanelLeft, ShoppingCart, CreditCard, BarChart3, Package, Users, Calculator, FileText, Menu, Settings, Globe, Sun, Moon, Bell } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from './DashboardLayoutSkeleton';
 import { Button } from "./ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useTheme } from "@/contexts/ThemeContext";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Page 1", path: "/" },
-  { icon: Users, label: "Page 2", path: "/some-path" },
-];
+const useMenuItems = () => {
+  const { t } = useLanguage();
+  return [
+    { icon: LayoutDashboard, label: t("erp"), path: "/", key: "erp" },
+    { icon: ShoppingCart, label: t("pos"), path: "/pos", key: "pos" },
+    { icon: CreditCard, label: t("cashier"), path: "/cashier", key: "cashier" },
+    { icon: BarChart3, label: t("dashboard"), path: "/dashboard", key: "dashboard" },
+    { icon: Package, label: t("inventory"), path: "/inventory", key: "inventory" },
+    { icon: Users, label: t("hrm"), path: "/hrm", key: "hrm" },
+    { icon: Calculator, label: t("accounting"), path: "/accounting", key: "accounting" },
+    { icon: FileText, label: t("auditLog"), path: "/audit-log", key: "auditLog" },
+    { icon: Menu, label: t("cms"), path: "/cms", key: "cms" },
+    { icon: Settings, label: t("systemSettings"), path: "/settings", key: "systemSettings" },
+  ];
+};
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
 const DEFAULT_WIDTH = 280;
@@ -121,8 +134,11 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const menuItems = useMenuItems();
   const activeMenuItem = menuItems.find(item => item.path === location);
   const isMobile = useIsMobile();
+  const { language, setLanguage, t } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     if (isCollapsed) {
@@ -231,34 +247,59 @@ function DashboardLayoutContent({
           </SidebarContent>
 
           <SidebarFooter className="p-3">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
-                  <Avatar className="h-9 w-9 border shrink-0">
-                    <AvatarFallback className="text-xs font-medium">
-                      {user?.name?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-                    <p className="text-sm font-medium truncate leading-none">
-                      {user?.name || "-"}
-                    </p>
-                    <p className="text-xs text-muted-foreground truncate mt-1.5">
-                      {user?.email || "-"}
-                    </p>
-                  </div>
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                <DropdownMenuItem
-                  onClick={logout}
-                  className="cursor-pointer text-destructive focus:text-destructive"
-                >
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Sign out</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-1 px-1 group-data-[collapsible=icon]:justify-center">
+                <Button variant="ghost" size="icon" className="h-8 w-8" title={t("theme")}>
+                  <Bell className="h-4 w-4" />
+                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" title={t("language")}>
+                      <Globe className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => setLanguage("th")}>
+                      ไทย {language === "th" && "✓"}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setLanguage("en")}>
+                      English {language === "en" && "✓"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={toggleTheme} title={t("theme")}>
+                  {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+                </Button>
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-3 rounded-lg px-1 py-1 hover:bg-accent/50 transition-colors w-full text-left group-data-[collapsible=icon]:justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+                    <Avatar className="h-9 w-9 border shrink-0">
+                      <AvatarFallback className="text-xs font-medium">
+                        {user?.name?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
+                      <p className="text-sm font-medium truncate leading-none">
+                        {user?.name || "-"}
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate mt-1.5">
+                        {user?.email || "-"}
+                      </p>
+                    </div>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem
+                    onClick={logout}
+                    className="cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>{t("logout")}</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </SidebarFooter>
         </Sidebar>
         <div

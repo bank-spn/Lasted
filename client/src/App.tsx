@@ -4,15 +4,32 @@ import NotFound from "@/pages/NotFound";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { LanguageProvider } from "./contexts/LanguageContext";
 import Home from "./pages/Home";
+import POS from "./pages/POS";
+import Cashier from "./pages/Cashier";
+import Dashboard from "./pages/Dashboard";
+import Inventory from "./pages/Inventory";
+import HRM from "./pages/HRM";
+import Accounting from "./pages/Accounting";
+import AuditLog from "./pages/AuditLog";
+import CMS from "./pages/CMS";
+import SystemSettings from "./pages/SystemSettings";
 
 function Router() {
-  // make sure to consider if you need authentication for certain routes
   return (
     <Switch>
       <Route path={"/"} component={Home} />
+      <Route path={"/pos"} component={POS} />
+      <Route path={"/cashier"} component={Cashier} />
+      <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/inventory"} component={Inventory} />
+      <Route path={"/hrm"} component={HRM} />
+      <Route path={"/accounting"} component={Accounting} />
+      <Route path={"/audit-log"} component={AuditLog} />
+      <Route path={"/cms"} component={CMS} />
+      <Route path={"/settings"} component={SystemSettings} />
       <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -28,12 +45,14 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider
         defaultTheme="light"
-        // switchable
+        switchable
       >
-        <TooltipProvider>
-          <Toaster />
-          <Router />
-        </TooltipProvider>
+        <LanguageProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Router />
+          </TooltipProvider>
+        </LanguageProvider>
       </ThemeProvider>
     </ErrorBoundary>
   );
