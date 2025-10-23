@@ -2,14 +2,49 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { TrendingUp, TrendingDown, DollarSign, ShoppingCart, Package, Users } from "lucide-react";
+import { useOrders, useInventory, useEmployees } from "@/hooks/useSupabase";
+import { useEffect, useState } from "react";
 
 export default function Dashboard() {
   const { language } = useLanguage();
+  const { orders, loading: ordersLoading } = useOrders('completed');
+  const { inventory, loading: inventoryLoading } = useInventory();
+  const { employees, loading: employeesLoading } = useEmployees();
+
+  const [stats, setStats] = useState({
+    totalSales: 0,
+    totalOrders: 0,
+    inventoryValue: 0,
+    activeEmployees: 0,
+  });
+
+  useEffect(() => {
+    if (!ordersLoading && orders) {
+      const totalSales = orders.reduce((sum, order) => sum + Number(order.net_amount || 0), 0);
+      setStats(prev => ({ ...prev, totalSales, totalOrders: orders.length }));
+    }
+  }, [orders, ordersLoading]);
+
+  useEffect(() => {
+    if (!inventoryLoading && inventory) {
+      const inventoryValue = inventory.reduce((sum, item) => 
+        sum + (Number(item.quantity || 0) * Number(item.cost_per_unit || 0)), 0
+      );
+      setStats(prev => ({ ...prev, inventoryValue }));
+    }
+  }, [inventory, inventoryLoading]);
+
+  useEffect(() => {
+    if (!employeesLoading && employees) {
+      const activeEmployees = employees.filter(emp => emp.status === 'active').length;
+      setStats(prev => ({ ...prev, activeEmployees }));
+    }
+  }, [employees, employeesLoading]);
 
   const kpiData = [
     {
       title: language === "th" ? "ยอดขายทั้งหมด" : "Total Sales",
-      value: "฿283,090.94",
+      value: `฿${stats.totalSales.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       change: "+12.5%",
       trend: "up",
       icon: <TrendingUp className="h-5 w-5" />,
@@ -17,44 +52,35 @@ export default function Dashboard() {
       bgColor: "bg-green-50",
     },
     {
-      title: language === "th" ? "ค่าใช้จ่ายทั้งหมด" : "Total Expenses",
-      value: "฿66,791.14",
-      change: "+5.2%",
+      title: language === "th" ? "จำนวนออเดอร์" : "Total Orders",
+      value: stats.totalOrders.toString(),
+      change: "+8.1%",
       trend: "up",
-      icon: <TrendingDown className="h-5 w-5" />,
-      color: "text-red-600",
-      bgColor: "bg-red-50",
-    },
-    {
-      title: language === "th" ? "กำไรสุทธิ" : "Net Profit",
-      value: "฿216,699.80",
-      change: "+18.3%",
-      trend: "up",
-      icon: <DollarSign className="h-5 w-5" />,
+      icon: <ShoppingCart className="h-5 w-5" />,
       color: "text-blue-600",
       bgColor: "bg-blue-50",
     },
     {
       title: language === "th" ? "มูลค่าสินค้าคงเหลือ" : "Inventory Value",
-      value: "฿2,874,103.07",
+      value: `฿${stats.inventoryValue.toLocaleString('th-TH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       change: "-2.1%",
       trend: "down",
       icon: <Package className="h-5 w-5" />,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
     },
+    {
+      title: language === "th" ? "พนักงานทำงาน" : "Active Employees",
+      value: stats.activeEmployees.toString(),
+      change: "0%",
+      trend: "up",
+      icon: <Users className="h-5 w-5" />,
+      color: "text-purple-600",
+      bgColor: "bg-purple-50",
+    },
   ];
 
-  const cogData = [
-    { label: "COG (ต้นทุนสินค้า)", items: [
-      { name: "Cost of Goods", value: "฿400.00", percent: "0.53%" },
-      { name: "ต้นทุนสินค้าที่ซื้อมา", value: "฿3,943.16" },
-    ]},
-    { label: "COG (ต้นทุนแรงงาน)", items: [
-      { name: "Cost of Labor", value: "", percent: "22.46%" },
-      { name: "ค่าจ้างพนักงาน", value: "฿53,000.00" },
-    ]},
-  ];
+  const recentOrders = orders.slice(0, 5);
 
   return (
     <DashboardLayout>
@@ -89,88 +115,100 @@ export default function Dashboard() {
         <div className="grid gap-4 md:grid-cols-2">
           <Card>
             <CardHeader>
-              <CardTitle className="text-green-600">กำไร</CardTitle>
+              <CardTitle>{language === "th" ? "ออเดอร์ล่าสุด" : "Recent Orders"}</CardTitle>
+              <CardDescription>
+                {language === "th" ? "รายการออเดอร์ที่เพิ่งเสร็จสมบูรณ์" : "Recently completed orders"}
+              </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold">฿104.67</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-red-600">ขาดทุน</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold">฿19,816.37</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>ยอดขายรวมทั้งหมด</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-center h-64">
-                <div className="relative">
-                  <svg className="w-48 h-48" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#e5e7eb" strokeWidth="20" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#f97316" strokeWidth="20" strokeDasharray="75 251" transform="rotate(-90 50 50)" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#3b82f6" strokeWidth="20" strokeDasharray="50 251" strokeDashoffset="-75" transform="rotate(-90 50 50)" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#ec4899" strokeWidth="20" strokeDasharray="50 251" strokeDashoffset="-125" transform="rotate(-90 50 50)" />
-                    <circle cx="50" cy="50" r="40" fill="none" stroke="#10b981" strokeWidth="20" strokeDasharray="76 251" strokeDashoffset="-175" transform="rotate(-90 50 50)" />
-                  </svg>
-                  <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <div className="text-2xl font-bold">฿216,299.80</div>
-                    <div className="text-sm text-muted-foreground">กำไรสุทธิ</div>
-                    <div className="text-xs text-green-600">+76.41%</div>
-                  </div>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-2 mt-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                  <span className="text-xs">ยอดขาย</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <span className="text-xs">COG</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-pink-500"></div>
-                  <span className="text-xs">COL</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                  <span className="text-xs">EXPENSE</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>รายละเอียดต้นทุนและค่าใช้จ่าย</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4 max-h-96 overflow-y-auto">
-              {cogData.map((section, idx) => (
-                <div key={idx} className="space-y-2">
-                  <h4 className="font-semibold text-sm">{section.label}</h4>
-                  {section.items.map((item, itemIdx) => (
-                    <div key={itemIdx} className="flex justify-between text-sm pl-4">
-                      <span className="text-muted-foreground">{item.name}</span>
-                      <div className="flex gap-4">
-                        {item.value && <span>{item.value}</span>}
-                        {item.percent && <span className="text-muted-foreground">{item.percent}</span>}
+              {ordersLoading ? (
+                <p className="text-sm text-muted-foreground">{language === "th" ? "กำลังโหลด..." : "Loading..."}</p>
+              ) : recentOrders.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{language === "th" ? "ยังไม่มีออเดอร์" : "No orders yet"}</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentOrders.map((order) => (
+                    <div key={order.id} className="flex items-center justify-between border-b pb-2">
+                      <div>
+                        <p className="font-medium">{order.order_number}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {order.table_number ? `${language === "th" ? "โต๊ะ" : "Table"} ${order.table_number}` : "-"}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold">฿{Number(order.net_amount).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</p>
+                        <p className="text-xs text-muted-foreground">{order.payment_method || "-"}</p>
                       </div>
                     </div>
                   ))}
                 </div>
-              ))}
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{language === "th" ? "สต็อกต่ำ" : "Low Stock Items"}</CardTitle>
+              <CardDescription>
+                {language === "th" ? "สินค้าที่ใกล้หมด" : "Items running low"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {inventoryLoading ? (
+                <p className="text-sm text-muted-foreground">{language === "th" ? "กำลังโหลด..." : "Loading..."}</p>
+              ) : (
+                <div className="space-y-3">
+                  {inventory
+                    .filter(item => Number(item.quantity) <= Number(item.min_stock))
+                    .slice(0, 5)
+                    .map((item) => (
+                      <div key={item.id} className="flex items-center justify-between border-b pb-2">
+                        <div>
+                          <p className="font-medium">{language === "th" ? item.name_th : item.name_en}</p>
+                          <p className="text-sm text-muted-foreground">{item.unit}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-bold text-red-600">{Number(item.quantity).toFixed(1)}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {language === "th" ? "ขั้นต่ำ" : "Min"}: {Number(item.min_stock).toFixed(1)}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  {inventory.filter(item => Number(item.quantity) <= Number(item.min_stock)).length === 0 && (
+                    <p className="text-sm text-muted-foreground">{language === "th" ? "สต็อกเพียงพอทั้งหมด" : "All items in stock"}</p>
+                  )}
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{language === "th" ? "สรุปภาพรวม" : "Overview Summary"}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">{language === "th" ? "ยอดขายเฉลี่ยต่อออเดอร์" : "Average Order Value"}</p>
+                <p className="text-2xl font-bold">
+                  ฿{stats.totalOrders > 0 ? (stats.totalSales / stats.totalOrders).toLocaleString('th-TH', { minimumFractionDigits: 2 }) : '0.00'}
+                </p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">{language === "th" ? "รายการสินค้าทั้งหมด" : "Total Inventory Items"}</p>
+                <p className="text-2xl font-bold">{inventory.length}</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">{language === "th" ? "พนักงานทั้งหมด" : "Total Employees"}</p>
+                <p className="text-2xl font-bold">{employees.length}</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </DashboardLayout>
   );
 }
+
