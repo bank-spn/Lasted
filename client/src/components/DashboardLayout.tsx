@@ -167,9 +167,10 @@ function DashboardLayoutContent({
                       className="h-8 w-8 rounded-md object-cover ring-1 ring-border shrink-0"
                       alt="Logo"
                     />
-                    <span className="font-semibold tracking-tight truncate">
-                      {APP_TITLE}
-                    </span>
+                    <div className="flex flex-col">
+                      <span className="font-semibold tracking-tight truncate">SPN rOS</span>
+                      <span className="text-xs text-sidebar-foreground/70 truncate">Restaurant ERP</span>
+                    </div>
                   </div>
                   <button
                     onClick={toggleSidebar}
@@ -252,7 +253,7 @@ function DashboardLayoutContent({
               <div className="flex items-center gap-3">
                 <div className="flex flex-col gap-1">
                   <span className="tracking-tight text-foreground">
-                    {activeMenuItem?.label ?? APP_TITLE}
+                    {activeMenuItem?.label ?? "SPN rOS"}
                   </span>
                 </div>
               </div>
