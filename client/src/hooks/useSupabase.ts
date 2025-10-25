@@ -297,3 +297,92 @@ export function useSystemSettings() {
   return { settings, loading, error, refetch: fetchSettings }
 }
 
+
+
+
+// Cash Drawer Hook
+export function useCashDrawer() {
+  const [cashDrawer, setCashDrawer] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    fetchCashDrawer()
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('cash-drawer-changes')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'cash_drawer' },
+        () => fetchCashDrawer()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
+  async function fetchCashDrawer() {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('cash_drawer')
+        .select('*')
+        .order('opened_at', { ascending: false })
+
+      if (error) throw error
+      setCashDrawer(data || [])
+    } catch (err) {
+      setError(err as Error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { cashDrawer, loading, error, refetch: fetchCashDrawer }
+}
+
+// Accounting Transactions Hook
+export function useAccountingTransactions() {
+  const [accountingTransactions, setAccountingTransactions] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+
+  useEffect(() => {
+    fetchAccountingTransactions()
+
+    // Subscribe to realtime changes
+    const channel = supabase
+      .channel('accounting-transactions-changes')
+      .on('postgres_changes',
+        { event: '*', schema: 'public', table: 'accounting_transactions' },
+        () => fetchAccountingTransactions()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [])
+
+  async function fetchAccountingTransactions() {
+    try {
+      setLoading(true)
+      const { data, error } = await supabase
+        .from('accounting_transactions')
+        .select('*')
+        .order('transaction_date', { ascending: false })
+
+      if (error) throw error
+      setAccountingTransactions(data || [])
+    } catch (err) {
+      setError(err as Error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return { accountingTransactions, loading, error, refetch: fetchAccountingTransactions }
+}
+
