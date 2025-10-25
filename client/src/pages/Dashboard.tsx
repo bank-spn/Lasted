@@ -19,10 +19,10 @@ export default function Dashboard() {
     const today = new Date().toISOString().split('T')[0];
     
     const todayOrders = orders.filter(o => o.created_at?.startsWith(today));
-    const todaySales = todayOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+    const todaySales = todayOrders.reduce((sum, o) => sum + Number(o.net_amount || 0), 0);
     
     const todayExpenses = accountingTransactions
-      .filter(t => t.transaction_date?.startsWith(today) && t.type === 'expense')
+      .filter(t => t.date?.startsWith(today) && t.type === 'expense')
       .reduce((sum, t) => sum + Number(t.amount || 0), 0);
     
     const todayProfit = todaySales - todayExpenses;
@@ -40,9 +40,9 @@ export default function Dashboard() {
     const openDrawer = cashDrawer.find(d => d.status === 'open');
     if (!openDrawer) return 0;
     
-    const opening = Number(openDrawer.opening_cash || 0);
-    const sales = Number(openDrawer.total_sales || 0);
-    const expenses = Number(openDrawer.total_expenses || 0);
+    const opening = Number(openDrawer.opening_balance || 0);
+    const sales = Number(openDrawer.total_cash_in || 0);
+    const expenses = Number(openDrawer.total_cash_out || 0);
     
     return opening + sales - expenses;
   }, [cashDrawer]);
@@ -62,10 +62,10 @@ export default function Dashboard() {
       const monthStr = date.toISOString().substring(0, 7); // YYYY-MM
       
       const monthOrders = orders.filter(o => o.created_at?.startsWith(monthStr));
-      const revenue = monthOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+      const revenue = monthOrders.reduce((sum, o) => sum + Number(o.net_amount || 0), 0);
       
       const monthExpenses = accountingTransactions
-        .filter(t => t.transaction_date?.startsWith(monthStr) && t.type === 'expense')
+        .filter(t => t.date?.startsWith(monthStr) && t.type === 'expense')
         .reduce((sum, t) => sum + Number(t.amount || 0), 0);
       
       months.push({

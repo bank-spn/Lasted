@@ -372,7 +372,7 @@ export function useAccountingTransactions() {
       const { data, error } = await supabase
         .from('accounting_transactions')
         .select('*')
-        .order('transaction_date', { ascending: false })
+        .order('date', { ascending: false })
 
       if (error) throw error
       setAccountingTransactions(data || [])
