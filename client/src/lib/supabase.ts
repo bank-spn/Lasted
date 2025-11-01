@@ -1,8 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://lqrrjotvbmxbuyzjcoiz.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxxcnJqb3R2Ym14YnV5empjb2l6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjExNTYwMDYsImV4cCI6MjA3NjczMjAwNn0.Q0kZeluRqlGQIZTjfsyV2hVV5huZ7JskcPQcgwbmvYs'
+// ✅ อ่านค่าจาก environment เท่านั้น (ไม่มี fallback hardcode)
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
+// 🚨 ถ้าไม่มีค่า env -> แจ้ง error ทันที (กัน dev ลืมตั้ง)
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error(
+    '❌ Missing Supabase environment variables. Check your .env file (local) or Vercel project settings (production).'
+  )
+}
+
+// ✅ สร้าง client สำหรับฝั่ง client (frontend)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
@@ -15,7 +24,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 })
 
-// Database types (auto-generated from Supabase)
+// 🗄️ Database types (auto-generated from Supabase)
 export type Database = {
   public: {
     Tables: {
@@ -168,4 +177,3 @@ export type Database = {
     }
   }
 }
-
