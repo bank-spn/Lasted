@@ -5,3 +5,8 @@ export async function getSystemHealth() {
   if (error) throw error
   return { ok: true, data }
 }
+
+// ✅ เพิ่ม default export สำหรับ router
+export const systemRouter = {
+  getSystemHealth,
+}
