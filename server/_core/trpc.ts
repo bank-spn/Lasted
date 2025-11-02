@@ -1,10 +1,16 @@
-import { supabaseAdmin } from './supabaseServer'
+// server/_core/trpc.ts
+import { initTRPC } from "@trpc/server";
+import { supabaseAdmin } from "./supabaseServer";
 
-// ✅ เพิ่ม placeholders ให้ไฟล์ที่ import หาเจอ
-export const router = {}
-export const publicProcedure = () => {}
-export const protectedProcedure = () => {}
+const t = initTRPC.create();
+
+export const router = t.router;
+export const publicProcedure = t.procedure;
+export const protectedProcedure = t.procedure.use(async ({ next }) => {
+  // mock auth
+  return next();
+});
 
 export const trpcContext = {
   supabase: supabaseAdmin,
-}
+};
