@@ -1,0 +1,48 @@
+# Vercel ignore file
+# Files and directories to exclude from Vercel deployment
+
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Environment variables (set in Vercel dashboard)
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Test files
+*.test.ts
+*.test.tsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+coverage/
+
+# Documentation (optional - remove if you want docs in deployment)
+*.md
+!README.md
+
+# Development files
+.git/
+.github/
+patches/
+
+# Supabase (not needed in deployment)
+supabase/
+
+# Drizzle (not needed in deployment)
+drizzle/
+
