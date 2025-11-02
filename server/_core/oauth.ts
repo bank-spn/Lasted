@@ -5,3 +5,8 @@ export async function getUserByEmail(email: string) {
   if (error) throw error
   return data
 }
+
+// ✅ เพิ่ม placeholder ฟังก์ชันเก่า (ป้องกัน build error)
+export function registerOAuthRoutes() {
+  console.log('⚠️ registerOAuthRoutes() called - placeholder only')
+}
