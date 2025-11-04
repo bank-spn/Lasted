@@ -1,10 +1,13 @@
 // server/_core/systemRouter.ts
-import { supabaseAdmin } from "./supabaseServer";
+import { publicProcedure, router } from "./trpc";
 
-export const systemRouter = {
-  async getSystemHealth() {
-    const { data, error } = await supabaseAdmin.from("system_status").select("*").limit(1);
-    if (error) throw error;
-    return { ok: true, data };
-  },
-};
+export const systemRouter = router({
+  health: publicProcedure.query(() => {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      message: 'System is running'
+    };
+  }),
+});
+
